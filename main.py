@@ -10,43 +10,59 @@ from scrappers.playonlinelive import PlayOnlineLive
 from sites import Days, BetTypes
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
-import datetime
+import threading
 
 class Settings:
     roi_threshold = -10
-    min_odds = 1.9
+    min_odds = 1.7
 
-ser = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
-opts = webdriver.ChromeOptions()
-opts.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+def get_betfair_events(result_event, driver):
+    betfairlive = BetfairLive(driver)
+    betfairlive.get_all_football_events()
 
-driver = webdriver.Chrome(service=ser, options=opts)
+    result_event['betfairlive'] = betfairlive
 
-betfair = BetfairLive(driver)
-betfair.get_all_football_events()
+def get_playonlinelive_events(result_event, driver):
+    playonlinelive = PlayOnlineLive(driver)
+    playonlinelive.get_all_football_events()
 
-playonlinelive = PlayOnlineLive(driver)
-playonlinelive.get_all_football_events()
+    result_event['playonlinelive'] = playonlinelive
 
-lista_case = [playonlinelive]
-for i in range(len(lista_case)):
-    matcher = ExchangeMatcher(lista_case[i], betfair)
-    matcher.match_football_events(roi_threshold=Settings.roi_threshold)
-    matcher.sort_football_games_by_roi()
-    for e in matcher.football_pairs:
-        if e.bettype == BetTypes.BET_1 and e.event_bookie.odds1 < Settings.min_odds or\
-            e.bettype == BetTypes.BET_X and e.event_bookie.oddsx < Settings.min_odds or\
-            e.bettype == BetTypes.BET_2 and e.event_bookie.odds2 < Settings.min_odds:
-            continue
-        print(e)
-        print("==============")
+if __name__ == "__main__":
+    ser = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
+    opts = webdriver.ChromeOptions()
+    opts.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 
-# lista_case = [superbet]
-# for i in range(len(lista_case) - 1):
-#     for j in range(i + 1, len(lista_case)):
-#         matcher = Matcher(lista_case[i], lista_case[j])
-#         matcher.match_football_events()
-#         matcher.sort_football_games_by_roi()
-#         for e in matcher.football_pairs:
-#             print(e)
-#             print("==============")
+    playonlinelivedriver = webdriver.Chrome(service=ser, options=opts)
+    betfairlivedriver = webdriver.Chrome(service=ser, options=opts)
+
+    result_dict = {}
+
+    while True:
+        user_input = input(">>> ")
+
+        if user_input.strip().lower() == "exit":
+            exit(0)
+        elif user_input.strip().lower() == "run":
+            thread_betfair = threading.Thread(target=get_betfair_events, args=[result_dict, betfairlivedriver])
+            thread_playonlinelive = threading.Thread(target=get_playonlinelive_events, args=[result_dict, playonlinelivedriver])
+
+            thread_betfair.start()
+            thread_playonlinelive.start()
+            thread_betfair.join()
+            thread_playonlinelive.join()
+
+            betfair = result_dict['betfairlive']
+            playonlinelive = result_dict['playonlinelive']
+
+            matcher = ExchangeMatcher(playonlinelive, betfair)
+            matcher.match_football_events(roi_threshold=Settings.roi_threshold)
+            matcher.sort_football_games_by_roi()
+            for e in matcher.football_pairs:
+                if e.bettype == BetTypes.BET_1 and e.event_bookie.odds1 < Settings.min_odds or\
+                    e.bettype == BetTypes.BET_X and e.event_bookie.oddsx < Settings.min_odds or\
+                    e.bettype == BetTypes.BET_2 and e.event_bookie.odds2 < Settings.min_odds:
+                    continue
+                print(e)
+                print("==============")
+

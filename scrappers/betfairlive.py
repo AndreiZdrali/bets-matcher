@@ -25,9 +25,7 @@ class BetfairLive(ScrapperBase):
         if event_html.find("div", {"class": "middle-label"}):
             return True
         
-        time_text = event_html.find("div", {"class": "label"})
-        if not time_text:
-            return False
+        time_text = event_html.find("span", {"class": "label"}).text
         
         #e live cu verde
         if time_text == "Live":
@@ -44,6 +42,8 @@ class BetfairLive(ScrapperBase):
         self.driver.get(SiteFootballURLs.BETFAIRLIVE + f"/{page}")
         #sorteaza dupa timp, nu cred ca trb refresh pt ca seteaza inainte de fetch
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
+        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 4)")
+        
         #self.driver.refresh()
 
         self._load_all_events()
@@ -57,7 +57,6 @@ class BetfairLive(ScrapperBase):
                     nume = event_html.find("ul", {"class": "runners"})
                     lay_buttons = event_html.findAll("button", {"class": "lay"})
                     cote = [x.find("label") for x in lay_buttons]
-                    url = event_html.find("a")["href"]
 
                     [nume1, nume2] = [x.text for x in nume.findAll("li", {"class": "name"})]
                     [cota1, cotax, cota2] = [float(x.text.strip()) for x in cote]
