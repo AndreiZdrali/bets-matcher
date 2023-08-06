@@ -1,0 +1,10 @@
+{
+  "min_roi": -10,
+  "max_roi": 1000000000,
+  "min_odds": 1.7,
+  "max_odds": 1000,
+  "commission_back": 0.03,
+  "commission_lay": 0.065,
+  "bgrun_interval": 30,
+  "stake_back": 100
+}

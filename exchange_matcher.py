@@ -2,6 +2,7 @@ from scrappers.scrapper import ScrapperBase
 from events import Event
 from sites import Sports, BetTypes
 from matcher import Matcher
+import settings
 
 class ExchangeMatcher(Matcher):
     """ casa prima, exchange-ul al doilea """
@@ -14,7 +15,7 @@ class ExchangeMatcher(Matcher):
     #cred ca trb lucrat la formula la comisioane
     @staticmethod
     def calculate_roi(odds_back: float, odds_lay: float, commission_back: float = 0, commission_lay: float = 0):
-        stake_back = 100 #ca sa lucram in procente
+        stake_back = settings.SETTINGS["stake_back"] #100 ca sa lucram in procente
         #stake_lay = odds_back * stake_back / (odds_lay - commission_lay)
         #profit = stake_lay * (1 - commission_lay) - stake_back
         #return (stake_back, stake_lay, profit)
@@ -28,11 +29,16 @@ class ExchangeMatcher(Matcher):
     def match_tennis_events(self, roi_treshold = -3):
         pass
 
-    def match_football_events(self, roi_threshold=-3, commission_back = 0.03, commission_lay = 0.065):
+    def match_football_events(self, roi_threshold=-3): #commission_back = 0.03, commission_lay = 0.065):
+        print(settings.SETTINGS)
+
         for e in self.bookie.football_events:
             e.normalize_teams(2)
         for e in self.exchange.football_events:
             e.normalize_teams(2)
+
+        commission_back = settings.SETTINGS["commission_back"]
+        commission_lay = settings.SETTINGS["commission_lay"]
 
         for event_bookie in self.bookie.football_events:
             for event_exchange in self.exchange.football_events:

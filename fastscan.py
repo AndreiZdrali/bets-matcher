@@ -10,11 +10,13 @@ from scrappers.playonlinelive import PlayOnlineLive
 from sites import Days, BetTypes
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
-import threading
+import threading, settings
 
 class Settings:
     roi_threshold = -10
     min_odds = 1.7
+
+settings.load_settings() #ca sa mearga
 
 def get_betfair_events(result_event):
     ser = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
