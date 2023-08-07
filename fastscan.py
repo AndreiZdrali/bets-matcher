@@ -26,7 +26,7 @@ def get_betfair_events(result_event):
     driver = webdriver.Chrome(service=ser, options=opts)
 
     betfairlive = BetfairLive(driver)
-    betfairlive.get_all_football_events()
+    betfairlive.get_all_tennis_events() #football
 
     result_event['betfairlive'] = betfairlive
 
@@ -38,7 +38,7 @@ def get_playonlinelive_events(result_event):
     driver = webdriver.Chrome(service=ser, options=opts)
 
     playonlinelive = PlayOnlineLive(driver)
-    playonlinelive.get_all_football_events()
+    playonlinelive.get_all_tennis_events() #football
 
     result_event['playonlinelive'] = playonlinelive
 
@@ -57,14 +57,14 @@ playonlinelive = result_dict['playonlinelive']
 lista_case = [playonlinelive]
 for i in range(len(lista_case)):
     matcher = ExchangeMatcher(lista_case[i], betfair)
-    matcher.match_football_events(roi_threshold=Settings.roi_threshold)
-    matcher.sort_football_games_by_roi()
-    for e in matcher.football_pairs:
+    matcher.match_tennis_events(roi_threshold=Settings.roi_threshold)
+    matcher.sort_tennis_games_by_roi()
+    for e in matcher.tennis_pairs: #football
         if e.bettype == BetTypes.BET_1 and e.event_bookie.odds1 < Settings.min_odds or\
-            e.bettype == BetTypes.BET_X and e.event_bookie.oddsx < Settings.min_odds or\
             e.bettype == BetTypes.BET_2 and e.event_bookie.odds2 < Settings.min_odds:
+            #e.bettype == BetTypes.BET_X and e.event_bookie.oddsx < Settings.min_odds or\
             continue
-        print(e)
+        print(e.short_str())
         print("==============")
 
 # lista_case = [superbet]

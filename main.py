@@ -20,6 +20,14 @@ def get_site_football_events(result_dict, driver, sitename, site: ScrapperBase):
     scrapper.get_all_football_events()
     result_dict[sitename] = scrapper
 
+def print_event(e):
+    if settings.SETTINGS["verbose_output"]:
+        print(e)
+        print("==============")
+    else:
+        print(e.short_str())
+        print("============================")
+
 def handle_help_command():
     print("help")
     print("run")
@@ -67,7 +75,7 @@ def handle_run_command(driver_bookie, driver_exchange):
 
     return matcher
 
-def handle_bgrun_command(command, threads):
+def handle_bgrun_command(command, threads): #TODO: multiprocessing in loc de threading
     global BG_RUNNING
     if command == "start":
         if len(threads) != 0:
@@ -116,6 +124,7 @@ def bgrun_thread():
 
     print("Thread exited.")
 
+#TODO: sa folosesc settings.SETTINGS["sport_type"]
 def main():
     settings.load_settings("settings.json") #incarca in SETTINGS din settings.py
 
@@ -145,8 +154,7 @@ def main():
 
             for e in matcher.football_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
-                    print(e)
-                    print("==============")
+                    print_event(e)
             
         elif user_input.split()[0] == "bgrun":
             _, *args = user_input.split()

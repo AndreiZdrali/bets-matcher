@@ -15,6 +15,7 @@ class SiteNames:
 
 class SiteTennisURLs:
     PUREBET = "https://api.purebet.io/pbapi?sport=tennis"
+    BETFAIRLIVE = "https://www.betfair.ro/exchange/plus/ro/tenis-pariuri-2"
     SUPERBET = "https://superbet.ro/pariuri-sportive/tenis"
     EFBET = "https://www.efbet.ro"
     CASAPARIURILOR = "https://www.casapariurilor.ro/pariuri-online/tenis"

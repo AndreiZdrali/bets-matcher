@@ -1,10 +1,12 @@
 {
   "min_roi": -10,
-  "max_roi": 1000000000,
+  "max_roi": 50,
   "min_odds": 1.7,
-  "max_odds": 1000,
+  "max_odds": 10,
   "commission_back": 0.03,
   "commission_lay": 0.065,
   "bgrun_interval": 30,
-  "stake_back": 100
+  "stake_back": 100,
+  "sport_type": "ft",
+  "verbose_output": 0
 }

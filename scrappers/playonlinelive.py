@@ -22,12 +22,54 @@ class PlayOnlineLive(ScrapperBase):
             self.driver.execute_script("window.scrollBy(0, 200)")
             time.sleep(0.05)
 
+    def get_all_tennis_events(self):
+        self.driver.get(SiteFootballURLs.PLAYONLINELIVE)
+        self._load_all_events()
+
+        bs = BeautifulSoup(self.driver.page_source, "html.parser")
+        tables = bs.findAll("div", {"class": "table"})
+
+        table = None
+        for t in tables:
+            table_title = t.find("div", {"class": "table-title"}).text
+            if table_title == "Tenis":
+                table = t
+                break
+
+        if table is None:
+            return
+
+        for event_html in table.findAll("div", {"class": "table-row"}):
+            try:
+                nume = event_html.find("span", {"class": "match-title-text"})
+                cote = event_html.findAll("span", {"class": "value"})
+
+                [nume1, nume2] = nume.text.split(" - ")
+                [cota1, cota2] = [float(x.text.strip()) for x in cote]
+                
+                event = TennisEvent(SiteNames.PLAYONLINELIVE, nume1, nume2, cota1, cota2)
+
+                self.add_if_not_included_tennis(event)
+            #da ValueError daca sunt pariurile blocate
+            except ValueError as e:
+                continue
+
     def get_all_football_events(self):
         self.driver.get(SiteFootballURLs.PLAYONLINELIVE)
         self._load_all_events()
 
         bs = BeautifulSoup(self.driver.page_source, "html.parser")
-        table = bs.find("div", {"class": "table"}) #primul tabel e fotbal
+        tables = bs.findAll("div", {"class": "table"})
+
+        table = None
+        for t in tables:
+            table_title = t.find("div", {"class": "table-title"}).text
+            if table_title == "Fotbal":
+                table = t
+                break
+
+        if table is None:
+            return
 
         for event_html in table.findAll("div", {"class": "table-row"}):
             try:
