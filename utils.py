@@ -1,5 +1,6 @@
 from sites import BetTypes
 
+#aproape inutil
 def swap(first, second):
     first, second = second, first
 

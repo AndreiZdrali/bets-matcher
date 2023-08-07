@@ -20,9 +20,12 @@ class Event:
         return f"{self.team1}: {self.odds1}\n{self.team2}: {self.odds2}"
 
     def swap_teams(self):
-        utils.swap(self.team1, self.team2)
-        utils.swap(self.team1_norm, self.team2_norm)
-        utils.swap(self.odds1, self.odds2)
+        #utils.swap(self.team1, self.team2)
+        #utils.swap(self.team1_norm, self.team2_norm)
+        #utils.swap(self.odds1, self.odds2)
+        self.team1, self.team2 = self.team2, self.team1
+        self.team1_norm, self.team2_norm = self.team2_norm, self.team1_norm
+        self.odds1, self.odds2 = self.odds2, self.odds1
 
     def normalize_teams(self, length_threshold = 1):
         #POSIBIL SA DISPARA MULTE MATCH-URI DIN CAUZA ASTA

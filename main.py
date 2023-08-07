@@ -15,9 +15,12 @@ import threading, settings, utils, time
 
 BG_RUNNING = False
 
-def get_site_football_events(result_dict, driver, sitename, site: ScrapperBase):
+def get_site_events(result_dict, driver, sitename, site: ScrapperBase, sports):
     scrapper = site(driver)
-    scrapper.get_all_football_events()
+    if 'f' in sports:
+        scrapper.get_all_football_events()
+    if 't' in sports:
+        scrapper.get_all_tennis_events()
     result_dict[sitename] = scrapper
 
 def print_event(e):
@@ -58,8 +61,8 @@ def handle_settings_command():
 
 def handle_run_command(driver_bookie, driver_exchange):
     result_dict = {} #ca sa iau val din thread-uri
-    thread_playonlinelive = threading.Thread(target=get_site_football_events, args=[result_dict, driver_bookie, SiteNames.PLAYONLINELIVE, PlayOnlineLive])
-    thread_betfair = threading.Thread(target=get_site_football_events, args=[result_dict, driver_exchange, SiteNames.BETFAIRLIVE, BetfairLive])
+    thread_playonlinelive = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, SiteNames.PLAYONLINELIVE, PlayOnlineLive, settings.SETTINGS["sport_type"]])
+    thread_betfair = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, SiteNames.BETFAIRLIVE, BetfairLive, settings.SETTINGS["sport_type"]])
 
     thread_playonlinelive.start()
     thread_betfair.start()
@@ -70,8 +73,9 @@ def handle_run_command(driver_bookie, driver_exchange):
     betfair = result_dict[SiteNames.BETFAIRLIVE]
 
     matcher = ExchangeMatcher(playonlinelive, betfair)
-    matcher.match_football_events(roi_threshold=settings.SETTINGS["min_roi"])
-    matcher.sort_football_games_by_roi()
+    matcher.match_football_events()
+    matcher.match_tennis_events()
+    matcher.sort_all_events_by_roi()
 
     return matcher
 
@@ -124,9 +128,8 @@ def bgrun_thread():
 
     print("Thread exited.")
 
-#TODO: sa folosesc settings.SETTINGS["sport_type"]
 def main():
-    settings.load_settings("settings.json") #incarca in SETTINGS din settings.py
+    settings.load_settings() #incarca in SETTINGS din settings.py
 
     betfairlivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
     playonlinelivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
@@ -150,9 +153,12 @@ def main():
             handle_settings_command()
 
         elif user_input == "run":
-            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver)
+            if len(list(filter(lambda x: x in settings.SETTINGS["sport_type"], ['f', 't']))) == 0: #cam complex si degeaba
+                print(f"No sports selected. Use 'set sport_type [f/t/ft]' to select the sports.")
+                continue
 
-            for e in matcher.football_pairs:
+            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver)
+            for e in matcher.all_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)
             
@@ -163,7 +169,6 @@ def main():
             else:
                 handle_bgrun_command(args[0], threads)
             
-
         else:
             print(f"Invalid {user_input.split()[0]} command. Use 'help' to see all commands.")
 

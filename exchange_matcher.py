@@ -11,6 +11,7 @@ class ExchangeMatcher(Matcher):
         self.exchange = exchange
         self.tennis_pairs: list[ExchangeEventPair] = []
         self.football_pairs: list[ExchangeEventPair] = []
+        self.all_pairs: list[ExchangeEventPair] = []
 
     #cred ca trb lucrat la formula la comisioane
     @staticmethod
@@ -26,49 +27,53 @@ class ExchangeMatcher(Matcher):
 
         return (stake_back, stake_lay, profit)
 
-    def match_tennis_events(self, roi_threshold = -3):
+    def match_tennis_events(self):
         for e in self.bookie.tennis_events:
             e.normalize_teams(2)
         for e in self.exchange.tennis_events:
             e.normalize_teams(2)
 
+        min_roi = settings.SETTINGS["min_roi"]
+        max_roi = settings.SETTINGS["max_roi"]
         commission_back = settings.SETTINGS["commission_back"]
         commission_lay = settings.SETTINGS["commission_lay"]
 
         for event_bookie in self.bookie.tennis_events:
             for event_exchange in self.exchange.tennis_events:
-                if Matcher._check_if_tennis_events_match(event_bookie, event_exchange):
+                if Matcher._check_if_events_match(event_bookie, event_exchange):
                     (stake_back, stake_lay, roi) = ExchangeMatcher.calculate_roi(event_bookie.odds1, event_exchange.odds1, commission_back, commission_lay)
-                    if roi > roi_threshold:
+                    if roi > min_roi and roi < max_roi:
                         self.add_tennis_event_pair(ExchangeEventPair(Sports.TENNIS, event_bookie, event_exchange, stake_back, stake_lay, BetTypes.BET_1, roi))
 
                     (stake_back, stake_lay, roi) = ExchangeMatcher.calculate_roi(event_bookie.odds2, event_exchange.odds2, commission_back, commission_lay)
-                    if roi > roi_threshold:
+                    if roi > min_roi and roi < max_roi:
                         self.add_tennis_event_pair(ExchangeEventPair(Sports.TENNIS, event_bookie, event_exchange, stake_back, stake_lay, BetTypes.BET_2, roi))
 
-    def match_football_events(self, roi_threshold=-3): #commission_back = 0.03, commission_lay = 0.065):
+    def match_football_events(self):
         for e in self.bookie.football_events:
             e.normalize_teams(2)
         for e in self.exchange.football_events:
             e.normalize_teams(2)
 
+        min_roi = settings.SETTINGS["min_roi"]
+        max_roi = settings.SETTINGS["max_roi"]
         commission_back = settings.SETTINGS["commission_back"]
         commission_lay = settings.SETTINGS["commission_lay"]
 
         for event_bookie in self.bookie.football_events:
             for event_exchange in self.exchange.football_events:
-                if Matcher._check_if_tennis_events_match(event_bookie, event_exchange): #merge si la fotbal
+                if Matcher._check_if_events_match(event_bookie, event_exchange):
                     (stake_back, stake_lay, roi) = ExchangeMatcher.calculate_roi(event_bookie.odds1, event_exchange.odds1, commission_back, commission_lay)
-                    if roi > roi_threshold:
+                    if roi > min_roi and roi < max_roi:
                         #TODO: sa fac bettype-uri specifice de contra
                         self.add_football_event_pair(ExchangeEventPair(Sports.FOOTBALL, event_bookie, event_exchange, stake_back, stake_lay, BetTypes.BET_1, roi))
 
                     (stake_back, stake_lay, roi) = ExchangeMatcher.calculate_roi(event_bookie.oddsx, event_exchange.oddsx, commission_back, commission_lay)
-                    if roi > roi_threshold:
+                    if roi > min_roi and roi < max_roi:
                         self.add_football_event_pair(ExchangeEventPair(Sports.FOOTBALL, event_bookie, event_exchange, stake_back, stake_lay, BetTypes.BET_X, roi))
 
                     (stake_back, stake_lay, roi) = ExchangeMatcher.calculate_roi(event_bookie.odds2, event_exchange.odds2, commission_back, commission_lay)
-                    if roi > roi_threshold:
+                    if roi > min_roi and roi < max_roi:
                         self.add_football_event_pair(ExchangeEventPair(Sports.FOOTBALL, event_bookie, event_exchange, stake_back, stake_lay, BetTypes.BET_2, roi))
 
 class ExchangeEventPair:
@@ -82,10 +87,10 @@ class ExchangeEventPair:
         self.roi = roi
 
     def __str__(self):
-        return f"{self.roi} | {self.bettype}" +\
+        return f"{self.roi} | {self.sport} | {self.bettype}" +\
             f"\n{self.event_bookie.site}\n{self.event_bookie}\nSTAKE: {self.stake_back}" +\
             "\n--------------" +\
-            f"\n{self.event_exchange.site}\n{self.event_exchange}\nSTAKE: {self.stake_lay} (CONTRA) <--" +\
+            f"\n{self.event_exchange.site}\n{self.event_exchange}\nSTAKE: {self.stake_lay} (CONTRA)" +\
             f"\nhttps://www.betfair.ro/exchange/plus/{self.event_exchange.url}" if self.event_exchange.url else ""
     
     def short_str(self):

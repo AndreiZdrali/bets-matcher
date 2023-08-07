@@ -27,6 +27,10 @@ class BetfairLive(ScrapperBase):
 
         time_text = event_html.find("span", {"class": "label"}).text
         
+        #e live cu verde
+        if time_text == "Live":
+            return True
+        
         #urmeaza sa inceapa dar apare pe live
         if time_text in ["Începe în curând", "Începe în 5'", "Începe în 4'", "Începe în 3'"]:
             return True

@@ -57,8 +57,8 @@ playonlinelive = result_dict['playonlinelive']
 lista_case = [playonlinelive]
 for i in range(len(lista_case)):
     matcher = ExchangeMatcher(lista_case[i], betfair)
-    matcher.match_tennis_events(roi_threshold=Settings.roi_threshold)
-    matcher.sort_tennis_games_by_roi()
+    matcher.match_tennis_events()
+    matcher.sort_tennis_events_by_roi()
     for e in matcher.tennis_pairs: #football
         if e.bettype == BetTypes.BET_1 and e.event_bookie.odds1 < Settings.min_odds or\
             e.bettype == BetTypes.BET_2 and e.event_bookie.odds2 < Settings.min_odds:

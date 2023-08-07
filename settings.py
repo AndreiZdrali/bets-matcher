@@ -21,7 +21,7 @@ default_settings = {
     "commission_back": 0.03,
     "commission_lay": 0.065,
     "bgrun_interval": 30,
-    "verbose_output": 0
+    "verbose_output": 1
 }
 
 settings_file = "settings.json"
