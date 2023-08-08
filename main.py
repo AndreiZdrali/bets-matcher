@@ -2,29 +2,35 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from scrappers.scrapper import ScrapperBase
 from scrappers.purebet import Purebet
-from scrappers.betfairlive import BetfairLive
+from scrappers.betfair import Betfair, BetfairLive
 from scrappers.superbet import Superbet
 from scrappers.efbet import Efbet
 from scrappers.casapariurilor import CasaPariurilor
 from scrappers.stanleybet import Stanleybet
-from scrappers.playonlinelive import PlayOnlineLive
+from scrappers.playonline import PlayOnline, PlayOnlineLive
 from sites import BetTypes, SiteNames
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
 import threading, settings, utils, time
 
-BG_RUNNING = False
+BG_RUNNING = False #DE SCAPAT
 
-def get_site_events(result_dict, driver, sitename, site: ScrapperBase, sports):
+def get_site_events(result_dict, driver, site: ScrapperBase, sitename, sports, days_to_add):
     scrapper = site(driver)
     if 'f' in sports:
-        scrapper.get_all_football_events()
+        if days_to_add == -1:
+            scrapper.get_all_football_events() #daca e live nu are days_to_add
+        else:
+            scrapper.get_all_football_events(days_to_add)
     if 't' in sports:
-        scrapper.get_all_tennis_events()
+        if days_to_add == -1:
+            scrapper.get_all_tennis_events()
+        else:
+            scrapper.get_all_tennis_events(days_to_add)
     result_dict[sitename] = scrapper
 
 def print_event(e):
-    if settings.SETTINGS["verbose_output"]:
+    if not settings.SETTINGS["compact_output"]:
         print(e)
         print("==============")
     else:
@@ -59,26 +65,34 @@ def handle_settings_command():
         print(f"  '{key}': " + (f"'{val}'" if type(val) == str else f"{val}" ) + ",")
     print("}")
 
-def handle_run_command(driver_bookie, driver_exchange):
+def handle_run_command(driver_bookie, driver_exchange, sport_type, days_to_add):
     result_dict = {} #ca sa iau val din thread-uri
-    thread_playonlinelive = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, SiteNames.PLAYONLINELIVE, PlayOnlineLive, settings.SETTINGS["sport_type"]])
-    thread_betfair = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, SiteNames.BETFAIRLIVE, BetfairLive, settings.SETTINGS["sport_type"]])
+    scrapper_bookie, sitename_bookie = PlayOnlineLive, SiteNames.PLAYONLINELIVE
+    scrapper_exchange, sitename_exchange = BetfairLive, SiteNames.BETFAIRLIVE
 
-    thread_playonlinelive.start()
-    thread_betfair.start()
-    thread_playonlinelive.join()
-    thread_betfair.join()
+    if days_to_add != -1:
+        scrapper_bookie, sitename_bookie = PlayOnline, SiteNames.PLAYONLINE
+        scrapper_exchange, sitename_exchange = Betfair, SiteNames.BETFAIR
 
-    playonlinelive = result_dict[SiteNames.PLAYONLINELIVE]
-    betfair = result_dict[SiteNames.BETFAIRLIVE]
+    thread_bookie = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, scrapper_bookie, sitename_bookie, sport_type, days_to_add])
+    thread_exchange = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, scrapper_exchange, sitename_exchange, sport_type, days_to_add])
 
-    matcher = ExchangeMatcher(playonlinelive, betfair)
+    thread_bookie.start()
+    thread_exchange.start()
+    thread_bookie.join()
+    thread_exchange.join()
+
+    bookie = result_dict[sitename_bookie]
+    exchange = result_dict[sitename_exchange]
+
+    matcher = ExchangeMatcher(bookie, exchange)
     matcher.match_football_events()
     matcher.match_tennis_events()
     matcher.sort_all_events_by_roi()
 
     return matcher
 
+#IN LUCRU ===========
 def handle_bgrun_command(command, threads): #TODO: multiprocessing in loc de threading
     global BG_RUNNING
     if command == "start":
@@ -127,6 +141,7 @@ def bgrun_thread():
                 break
 
     print("Thread exited.")
+#IN LUCRU ===========
 
 def main():
     settings.load_settings() #incarca in SETTINGS din settings.py
@@ -157,12 +172,15 @@ def main():
                 print(f"No sports selected. Use 'set sport_type [f/t/ft]' to select the sports.")
                 continue
 
-            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver)
+            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver, settings.SETTINGS["sport_type"], settings.SETTINGS["days_to_add"])
             for e in matcher.all_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)
             
         elif user_input.split()[0] == "bgrun":
+            print("Inca nu e gata, calmeaza-te")
+            continue
+
             _, *args = user_input.split()
             if len(args) != 1:
                 print("Invalid 'bgrun' format. Usage: bgrun [start/stop].")

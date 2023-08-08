@@ -1,12 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from scrappers.purebet import Purebet
-from scrappers.betfairlive import BetfairLive
+from scrappers.betfair import BetfairLive
 from scrappers.superbet import Superbet
 from scrappers.efbet import Efbet
 from scrappers.casapariurilor import CasaPariurilor
 from scrappers.stanleybet import Stanleybet
-from scrappers.playonlinelive import PlayOnlineLive
+from scrappers.playonline import PlayOnlineLive
 from sites import Days, BetTypes
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher

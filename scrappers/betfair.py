@@ -9,12 +9,9 @@ from sites import SiteNames, SiteTennisURLs, SiteFootballURLs
 from scrappers.scrapper import ScrapperBase
 import time
 
-class BetfairLive(ScrapperBase):
+class Betfair(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
-
-    def get_all_tennis_events(self):
-        pass
 
     def _load_all_events(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "mod-event-line")))
@@ -54,11 +51,99 @@ class BetfairLive(ScrapperBase):
         
         return False
 
+    def get_all_tennis_events(self, days=0, page=1):
+
+        day_to_scan = "today"
+        if days == 1:
+            day_to_scan = "tomorrow"
+        elif days >= 2:
+            day_to_scan = "future"
+        
+        self.driver.get(SiteTennisURLs.BETFAIR + f"/{day_to_scan}/{page}")
+        #sorteaza dupa timp, nu cred ca trb refresh pt ca seteaza inainte de fetch
+        self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
+        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
+
+        time.sleep(0.5)
+        self.driver.refresh() #ca sa fie cotele actualizate
+
+        self._load_all_events()
+
+        bs = BeautifulSoup(self.driver.page_source, "html.parser")
+
+        for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
+            if not self._is_live_tennis(event_html):
+                try:
+                    nume = event_html.find("ul", {"class": "runners"})
+                    lay_buttons = event_html.findAll("button", {"class": "lay"})
+                    cote = [x.find("label") for x in lay_buttons]
+
+                    [nume1, nume2] = [x.text for x in nume.findAll("li", {"class": "name"})]
+                    [cota1, cota2] = [float(x.text.strip()) for x in cote]
+
+                    event = TennisEvent(SiteNames.BETFAIR, nume1, nume2, cota1, cota2)
+                    event.url = event_html.find("a")["href"]
+
+                    self.add_if_not_included_tennis(event)
+                except:
+                    continue
+        
+        if page >= len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
+            return
+
+        self.get_all_tennis_events(days, page + 1)
+
+    def get_all_football_events(self, days=0, page=1):
+        day_to_scan = "today"
+        if days == 1:
+            day_to_scan = "tomorrow"
+        elif days >= 2:
+            day_to_scan = "future"
+        
+        self.driver.get(SiteFootballURLs.BETFAIR + f"/{day_to_scan}/{page}")
+        #sorteaza dupa timp, nu cred ca trb refresh pt ca seteaza inainte de fetch
+        self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
+        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
+        
+        time.sleep(0.5)
+        self.driver.refresh() #ca sa fie cotele actualizate
+
+        self._load_all_events()
+
+        bs = BeautifulSoup(self.driver.page_source, "html.parser")
+
+        for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
+            if not self._is_live_football(event_html):
+                try:
+                    nume = event_html.find("ul", {"class": "runners"})
+                    lay_buttons = event_html.findAll("button", {"class": "lay"})
+                    cote = [x.find("label") for x in lay_buttons]
+
+                    [nume1, nume2] = [x.text for x in nume.findAll("li", {"class": "name"})]
+                    [cota1, cotax, cota2] = [float(x.text.strip()) for x in cote]
+
+                    event = FootballEvent(SiteNames.BETFAIR, nume1, nume2, cota1, cotax, cota2)
+                    event.url = event_html.find("a")["href"]
+
+                    self.add_if_not_included_football(event)
+                except:
+                    continue
+
+        if page >= len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
+            return
+
+        self.get_all_football_events(days, page + 1)
+
+
+class BetfairLive(Betfair):
+    def __init__(self, driver):
+        super().__init__(driver)
+
     def get_all_tennis_events(self, page=1):
         self.driver.get(SiteTennisURLs.BETFAIRLIVE + f"/{page}")
         #sorteaza dupa timp, nu cred ca trb refresh pt ca seteaza inainte de fetch
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
-        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 4)")
+        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
 
         time.sleep(0.5)
         self.driver.refresh() #ca sa fie cotele actualizate
@@ -93,7 +178,7 @@ class BetfairLive(ScrapperBase):
         self.driver.get(SiteFootballURLs.BETFAIRLIVE + f"/{page}")
         #sorteaza dupa timp, nu cred ca trb refresh pt ca seteaza inainte de fetch
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
-        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 4)")
+        self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
         
         time.sleep(0.5)
         self.driver.refresh() #ca sa fie cotele actualizate

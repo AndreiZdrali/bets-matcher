@@ -52,3 +52,9 @@ class ScrapperBase:
     def add_if_not_included_football(self, event):
         if self.not_included_football(event):
             self.football_events.append(event)
+
+    def get_all_tennis_events(self, days=0):
+        raise NotImplementedError
+
+    def get_all_football_events(self, days=0):
+        raise NotImplementedError

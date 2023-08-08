@@ -6,8 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from events import TennisEvent, FootballEvent
 from sites import SiteNames, SiteTennisURLs, SiteFootballURLs
-import requests
 from scrappers.scrapper import ScrapperBase
+import requests
 
 class Purebet(ScrapperBase):
     def __init__(self):
