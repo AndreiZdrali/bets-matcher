@@ -15,7 +15,7 @@ class Betfair(ScrapperBase):
 
     def _load_all_events(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "mod-event-line")))
-        time.sleep(2)
+        time.sleep(1.2) #era 2
 
     def _is_live_tennis(self, event_html):
         #e live cu verde si scor
@@ -29,7 +29,7 @@ class Betfair(ScrapperBase):
             return True
         
         #urmeaza sa inceapa dar apare pe live
-        if time_text in ["Începe în curând", "Începe în 5'", "Începe în 4'", "Începe în 3'"]:
+        if time_text in ["Începe în curând", "Începe în 6'" "Începe în 5'", "Începe în 4'", "Începe în 3'"]:
             return True
         
         return False
@@ -64,7 +64,7 @@ class Betfair(ScrapperBase):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
 
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
@@ -72,8 +72,8 @@ class Betfair(ScrapperBase):
         bs = BeautifulSoup(self.driver.page_source, "html.parser")
 
         for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
-            if not self._is_live_tennis(event_html):
-                try:
+            try:
+                if not self._is_live_tennis(event_html):
                     nume = event_html.find("ul", {"class": "runners"})
                     lay_buttons = event_html.findAll("button", {"class": "lay"})
                     cote = [x.find("label") for x in lay_buttons]
@@ -85,8 +85,8 @@ class Betfair(ScrapperBase):
                     event.url = event_html.find("a")["href"]
 
                     self.add_if_not_included_tennis(event)
-                except:
-                    continue
+            except:
+                continue
         
         if page >= len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
             return
@@ -105,7 +105,7 @@ class Betfair(ScrapperBase):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
         
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
@@ -113,8 +113,8 @@ class Betfair(ScrapperBase):
         bs = BeautifulSoup(self.driver.page_source, "html.parser")
 
         for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
-            if not self._is_live_football(event_html):
-                try:
+            try:
+                if not self._is_live_football(event_html):
                     nume = event_html.find("ul", {"class": "runners"})
                     lay_buttons = event_html.findAll("button", {"class": "lay"})
                     cote = [x.find("label") for x in lay_buttons]
@@ -126,8 +126,8 @@ class Betfair(ScrapperBase):
                     event.url = event_html.find("a")["href"]
 
                     self.add_if_not_included_football(event)
-                except:
-                    continue
+            except:
+                continue
 
         if page >= len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
             return
@@ -145,7 +145,7 @@ class BetfairLive(Betfair):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
 
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
@@ -154,8 +154,8 @@ class BetfairLive(Betfair):
 
         next_page = False
         for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
-            if self._is_live_tennis(event_html):
-                try:
+            try:
+                if self._is_live_tennis(event_html):
                     nume = event_html.find("ul", {"class": "runners"})
                     lay_buttons = event_html.findAll("button", {"class": "lay"})
                     cote = [x.find("label") for x in lay_buttons]
@@ -168,8 +168,8 @@ class BetfairLive(Betfair):
 
                     self.add_if_not_included_tennis(event)
                     next_page = True
-                except:
-                    continue
+            except:
+                continue
         
         if next_page:
             self.get_all_tennis_events(page + 1)
@@ -180,7 +180,7 @@ class BetfairLive(Betfair):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
         
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
@@ -189,8 +189,8 @@ class BetfairLive(Betfair):
 
         next_page = False
         for event_html in bs.findAll("tr", {"ng-if": "event.isReady && event.isVisible"}):
-            if self._is_live_football(event_html):
-                try:
+            try:
+                if self._is_live_football(event_html):
                     nume = event_html.find("ul", {"class": "runners"})
                     lay_buttons = event_html.findAll("button", {"class": "lay"})
                     cote = [x.find("label") for x in lay_buttons]
@@ -203,8 +203,8 @@ class BetfairLive(Betfair):
 
                     self.add_if_not_included_football(event)
                     next_page = True
-                except:
-                    continue
+            except:
+                continue
         
         if next_page:
             self.get_all_football_events(page + 1)

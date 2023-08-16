@@ -15,18 +15,18 @@ import threading, settings, utils, time
 
 BG_RUNNING = False #DE SCAPAT
 
-def get_site_events(result_dict, driver, site: ScrapperBase, sitename, sports, days_to_add):
+def get_site_events(result_dict, driver, site: ScrapperBase, sitename, sports, day):
     scrapper = site(driver)
     if 'f' in sports:
-        if days_to_add == -1:
-            scrapper.get_all_football_events() #daca e live nu are days_to_add
+        if day == -1:
+            scrapper.get_all_football_events() #daca e live nu are day
         else:
-            scrapper.get_all_football_events(days_to_add)
+            scrapper.get_all_football_events(day)
     if 't' in sports:
-        if days_to_add == -1:
+        if day == -1:
             scrapper.get_all_tennis_events()
         else:
-            scrapper.get_all_tennis_events(days_to_add)
+            scrapper.get_all_tennis_events(day)
     result_dict[sitename] = scrapper
 
 def print_event(e):
@@ -45,6 +45,10 @@ def handle_help_command():
     print("set")
     print("exit")
     print("jlkfsadjflksajflksadjfsa")
+
+def handle_home_command(driver_bookie, driver_exchange):
+    driver_bookie.get("https://www.google.com")
+    driver_exchange.get("https://www.google.com")
 
 def handle_set_command(key, val):
     if key not in settings.SETTINGS:
@@ -65,17 +69,17 @@ def handle_settings_command():
         print(f"  '{key}': " + (f"'{val}'" if type(val) == str else f"{val}" ) + ",")
     print("}")
 
-def handle_run_command(driver_bookie, driver_exchange, sport_type, days_to_add):
+def handle_run_command(driver_bookie, driver_exchange, sport_type, day):
     result_dict = {} #ca sa iau val din thread-uri
     scrapper_bookie, sitename_bookie = PlayOnlineLive, SiteNames.PLAYONLINELIVE
     scrapper_exchange, sitename_exchange = BetfairLive, SiteNames.BETFAIRLIVE
 
-    if days_to_add != -1:
+    if day != -1:
         scrapper_bookie, sitename_bookie = PlayOnline, SiteNames.PLAYONLINE
         scrapper_exchange, sitename_exchange = Betfair, SiteNames.BETFAIR
 
-    thread_bookie = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, scrapper_bookie, sitename_bookie, sport_type, days_to_add])
-    thread_exchange = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, scrapper_exchange, sitename_exchange, sport_type, days_to_add])
+    thread_bookie = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, scrapper_bookie, sitename_bookie, sport_type, day])
+    thread_exchange = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, scrapper_exchange, sitename_exchange, sport_type, day])
 
     thread_bookie.start()
     thread_exchange.start()
@@ -157,6 +161,12 @@ def main():
         if user_input == "exit":
             break
 
+        elif user_input == "help":
+            handle_help_command()
+
+        elif user_input == "home":
+            handle_home_command(betfairlivedriver, playonlinelivedriver)
+
         elif user_input.split()[0] == "set":
             _, *args = user_input.split()
             if len(args) != 2:
@@ -168,11 +178,11 @@ def main():
             handle_settings_command()
 
         elif user_input == "run":
-            if len(list(filter(lambda x: x in settings.SETTINGS["sport_type"], ['f', 't']))) == 0: #cam complex si degeaba
-                print(f"No sports selected. Use 'set sport_type [f/t/ft]' to select the sports.")
+            if len(list(filter(lambda x: x in settings.SETTINGS["sport"], ['f', 't']))) == 0: #cam complex si degeaba
+                print(f"No sports selected. Use 'set sport [f/t/ft]' to select the sports.")
                 continue
 
-            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver, settings.SETTINGS["sport_type"], settings.SETTINGS["days_to_add"])
+            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver, settings.SETTINGS["sport"], settings.SETTINGS["day"])
             for e in matcher.all_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)

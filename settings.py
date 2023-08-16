@@ -13,8 +13,8 @@ SELENIUM_OPTIONS.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browse
 
 default_settings = {
     "stake_back": 100,
-    "sport_type": "f",
-    "days_to_add": -1, #-1 = live, 0 = today, 1 = tomorrow...
+    "sport": "f",
+    "day": -1, #-1 = live, 0 = today, 1 = tomorrow...
     "min_roi": -10,
     "max_roi": 1000000000,
     "min_odds": 1.7,

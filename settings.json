@@ -2,12 +2,13 @@
   "min_roi": -10,
   "max_roi": 50,
   "min_odds": 1.7,
-  "max_odds": 10,
+  "max_odds": 5,
   "commission_back": 0.03,
   "commission_lay": 0.065,
   "bgrun_interval": 30,
   "stake_back": 100,
-  "sport_type": "f",
+  "sport": "f",
   "compact_output": 1,
-  "days_to_add": -1
+  "days_to_add": -1,
+  "day": -1
 }
