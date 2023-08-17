@@ -11,7 +11,7 @@ from scrappers.playonline import PlayOnline, PlayOnlineLive
 from sites import BetTypes, SiteNames
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
-import threading, settings, utils, time
+import threading, settings, utils, time, os
 
 BG_RUNNING = False #DE SCAPAT
 
@@ -49,6 +49,9 @@ def handle_help_command():
 def handle_home_command(driver_bookie, driver_exchange):
     driver_bookie.get("https://www.google.com")
     driver_exchange.get("https://www.google.com")
+
+def handle_clear_command():
+    os.system("cls" if os.name == "nt" else "clear")
 
 def handle_set_command(key, val):
     if key not in settings.SETTINGS:
@@ -166,6 +169,9 @@ def main():
 
         elif user_input == "home":
             handle_home_command(betfairlivedriver, playonlinelivedriver)
+
+        elif user_input == "cls" or  user_input == "clear":
+            handle_clear_command()
 
         elif user_input.split()[0] == "set":
             _, *args = user_input.split()
