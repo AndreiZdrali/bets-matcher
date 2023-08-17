@@ -193,6 +193,9 @@ def main():
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)
 
+            if settings.SETTINGS["autoclear"]:
+                handle_clear_command()
+
             if settings.SETTINGS["autohome"]:
                 handle_home_command(betfairlivedriver, playonlinelivedriver)
             

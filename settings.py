@@ -24,6 +24,7 @@ default_settings = {
     "bgrun_interval": 30,
     "compact_output": 1,
     "autohome": 1,
+    "autoclear": 0
 }
 
 settings_file = "settings.json"

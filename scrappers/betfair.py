@@ -171,7 +171,7 @@ class BetfairLive(Betfair):
             except:
                 continue
         
-        if next_page:
+        if next_page and page < len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
             self.get_all_tennis_events(page + 1)
 
     def get_all_football_events(self, page=1):
@@ -206,5 +206,5 @@ class BetfairLive(Betfair):
             except:
                 continue
         
-        if next_page:
+        if next_page and page < len(bs.findAll("li", {"class": "coupon-page-navigation__bullet"})):
             self.get_all_football_events(page + 1)
