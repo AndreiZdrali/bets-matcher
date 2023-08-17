@@ -186,6 +186,9 @@ def main():
             for e in matcher.all_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)
+
+            if settings.SETTINGS["autohome"]:
+                handle_home_command(betfairlivedriver, playonlinelivedriver)
             
         elif user_input.split()[0] == "bgrun":
             print("Inca nu e gata, calmeaza-te")

@@ -7,7 +7,7 @@ SETTINGS = {
 
 }
 
-SELENIUM_SERVICE = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
+SELENIUM_SERVICE = Service(r"C:\Users\andre\source\Python\bets-matcher\chromedriver.exe")
 SELENIUM_OPTIONS = webdriver.ChromeOptions()
 SELENIUM_OPTIONS.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 
@@ -22,7 +22,8 @@ default_settings = {
     "commission_back": 0.03,
     "commission_lay": 0.065,
     "bgrun_interval": 30,
-    "compact_output": 1
+    "compact_output": 1,
+    "autohome": 1,
 }
 
 settings_file = "settings.json"
