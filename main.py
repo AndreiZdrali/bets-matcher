@@ -156,6 +156,9 @@ def main():
     betfairlivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
     playonlinelivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
 
+    betfairlivedriver.minimize_window()
+    playonlinelivedriver.minimize_window()
+
     threads = []
 
     while True:

@@ -7,7 +7,7 @@ SETTINGS = {
 
 }
 
-SELENIUM_SERVICE = Service(r"C:\Users\andre\source\Python\bets-matcher\chromedriver.exe")
+SELENIUM_SERVICE = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
 SELENIUM_OPTIONS = webdriver.ChromeOptions()
 SELENIUM_OPTIONS.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
 

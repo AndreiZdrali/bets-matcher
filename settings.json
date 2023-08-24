@@ -7,9 +7,9 @@
   "commission_lay": 0.065,
   "bgrun_interval": 30,
   "stake_back": 100,
-  "sport": "t",
+  "sport": "ft",
   "compact_output": 1,
-  "day": -1,
+  "day": 0,
   "autohome": 1,
   "autoclear": 0
 }
