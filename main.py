@@ -60,16 +60,17 @@ def get_scrappers(live):
         return None
     
     bookie, exchange = bookie[0], exchange[0]
+    bookie_scrapper, exchange_scrapper = bookie.scrapper, exchange.scrapper
     
     if settings.SETTINGS["day"] == -1:
         if not bookie.has_live:
             print(f"Bookie '{bookie.sitename}' does not support live.")
             return None
-        bookie = bookie.live_scrapper
+        bookie_scrapper = bookie.live_scrapper
         if not exchange.has_live:
             print(f"Exchange '{exchange.sitename}' does not support live.")
             return None
-        exchange = exchange.live_scrapper
+        exchange_scrapper = exchange.live_scrapper
     else:
         if not bookie.has_prematch:
             print(f"Bookie '{bookie.sitename}' does not support prematch.")
@@ -78,7 +79,7 @@ def get_scrappers(live):
             print(f"Exchange '{exchange.sitename}' does not support prematch.")
             return None
     
-    return (bookie.scrapper, exchange.scrapper)
+    return (bookie_scrapper, exchange_scrapper)
 
 def get_site_events(result_dict, driver, site: ScrapperBase, sitename, sports, day):
     scrapper = site(driver)
