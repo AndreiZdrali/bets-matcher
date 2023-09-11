@@ -1,18 +1,22 @@
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
-import json
+import json, os
 
 #aici ca sa fie accesbil mai lejer peste tot
 SETTINGS = {
 
 }
 
-SELENIUM_SERVICE = Service(r"C:\Users\Andrei\source\Python\bets-matcher\chromedriver.exe")
+SELENIUM_SERVICE = Service(fr"{os.getcwd()}\chromedriver.exe")
 SELENIUM_OPTIONS = webdriver.ChromeOptions()
-SELENIUM_OPTIONS.binary_location = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+_brave_path = r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"
+if os.path.exists(_brave_path):
+    SELENIUM_OPTIONS.binary_location = _brave_path
 
 default_settings = {
     "stake_back": 100,
+    "bookie": "PlayOnline",
+    "exchange": "Betfair",
     "sport": "f",
     "day": -1, #-1 = live, 0 = today, 1 = tomorrow...
     "min_roi": -10,

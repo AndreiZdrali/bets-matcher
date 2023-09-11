@@ -13,6 +13,7 @@ import time, requests
 class PlayOnline(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.PLAYONLINE
 
     def _load_all_events(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "odds-container")))
@@ -95,6 +96,7 @@ class PlayOnline(ScrapperBase):
 class PlayOnlineLive(PlayOnline):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.PLAYONLINELIVE
 
     def get_all_tennis_events(self):
         self.driver.get(SiteFootballURLs.PLAYONLINELIVE)

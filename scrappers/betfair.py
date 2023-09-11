@@ -12,6 +12,7 @@ import time
 class Betfair(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.BETFAIR
 
     def _load_all_events(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "mod-event-line")))
@@ -138,6 +139,7 @@ class Betfair(ScrapperBase):
 class BetfairLive(Betfair):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.BETFAIRLIVE
 
     def get_all_tennis_events(self, page=1):
         self.driver.get(SiteTennisURLs.BETFAIRLIVE + f"/{page}")

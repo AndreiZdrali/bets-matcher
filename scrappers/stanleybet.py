@@ -12,6 +12,7 @@ import time
 class Stanleybet(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.STANLEYBET
 
     def get_all_tennis_events(self):
         self.driver.get(SiteTennisURLs.STANLEYBET)

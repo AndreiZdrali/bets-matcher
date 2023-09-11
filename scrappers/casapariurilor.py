@@ -13,6 +13,7 @@ import datetime
 class CasaPariurilor(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.CASAPARIURILOR
 
     def _load_all_events(self, timeout = 2):
         page_height = self.driver.execute_script("return document.body.scrollHeight")

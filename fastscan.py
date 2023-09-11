@@ -7,6 +7,7 @@ from scrappers.efbet import Efbet
 from scrappers.casapariurilor import CasaPariurilor
 from scrappers.stanleybet import Stanleybet
 from scrappers.playonline import PlayOnlineLive
+from scrappers.vulkanbet import VulkanBetLive
 from sites import Days, BetTypes
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
@@ -37,29 +38,33 @@ def get_playonlinelive_events(result_event):
 
     driver = webdriver.Chrome(service=ser, options=opts)
 
-    playonlinelive = PlayOnlineLive(driver)
+    playonlinelive = VulkanBetLive(driver)
     playonlinelive.get_all_tennis_events() #football
 
     result_event['playonlinelive'] = playonlinelive
 
 result_dict = {}
-thread_betfair = threading.Thread(target=get_betfair_events, args=[result_dict])
+#thread_betfair = threading.Thread(target=get_betfair_events, args=[result_dict])
 thread_playonlinelive = threading.Thread(target=get_playonlinelive_events, args=[result_dict])
 
-thread_betfair.start()
+#thread_betfair.start()
 thread_playonlinelive.start()
-thread_betfair.join()
+#thread_betfair.join()
 thread_playonlinelive.join()
 
-betfair = result_dict['betfairlive']
+#betfair = result_dict['betfairlive']
 playonlinelive = result_dict['playonlinelive']
+
+for e in playonlinelive.tennis_events:
+    print(e)
+    print("==============")
 
 lista_case = [playonlinelive]
 for i in range(len(lista_case)):
     matcher = ExchangeMatcher(lista_case[i], betfair)
-    matcher.match_tennis_events()
-    matcher.sort_tennis_events_by_roi()
-    for e in matcher.tennis_pairs: #football
+    matcher.match_football_events()
+    matcher.sort_football_events_by_roi()
+    for e in matcher.football_pairs: #football
         if e.bettype == BetTypes.BET_1 and e.event_bookie.odds1 < Settings.min_odds or\
             e.bettype == BetTypes.BET_2 and e.event_bookie.odds2 < Settings.min_odds:
             #e.bettype == BetTypes.BET_X and e.event_bookie.oddsx < Settings.min_odds or\

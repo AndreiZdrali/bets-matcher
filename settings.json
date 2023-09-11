@@ -1,15 +1,17 @@
 {
   "min_roi": -10,
   "max_roi": 50,
-  "min_odds": 1.7,
+  "min_odds": 1.9,
   "max_odds": 5,
   "commission_back": 0.03,
   "commission_lay": 0.065,
   "bgrun_interval": 30,
   "stake_back": 100,
-  "sport": "ft",
+  "sport": "t",
   "compact_output": 1,
   "day": 0,
   "autohome": 1,
-  "autoclear": 0
+  "autoclear": 0,
+  "bookie": "PlayOnline",
+  "exchange": "Betfair"
 }

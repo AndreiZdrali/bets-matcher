@@ -11,6 +11,7 @@ from scrappers.scrapper import ScrapperBase
 class Superbet(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.SUPERBET
 
     def get_all_tennis_events(self):
         self.driver.get(SiteTennisURLs.SUPERBET)

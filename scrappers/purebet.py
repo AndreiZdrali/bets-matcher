@@ -12,6 +12,7 @@ import requests
 class Purebet(ScrapperBase):
     def __init__(self):
         super().__init__()
+        self.sitename = SiteNames.PUREBET
 
     def get_all_tennis_events(self):
         pass

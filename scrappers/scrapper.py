@@ -1,11 +1,18 @@
 from events import TennisEvent, FootballEvent
 from selenium import webdriver
 
+#PASI SCRAPPER NOU:
+#1. adaugate in sites.py toate cele
+#2. facut nume_scrapper.py
+#3. in main.py adaugat in _get_bookie_sites()
+
 class ScrapperBase:
     def __init__(self, driver=None):
         self.driver: webdriver.Chrome = driver
         self.tennis_events: list[TennisEvent] = []
         self.football_events: list[FootballEvent] = []
+        self.sitename: str = None
+        self.live_scrapper: ScrapperBase = None
 
     @staticmethod
     def _get_element(node):
@@ -24,7 +31,7 @@ class ScrapperBase:
             path.insert(0, ScrapperBase._get_element(parent))
 
         return ' > '.join(path)
-    
+
     #DOAR PT SITE-URILE CU API
     def add_tennis(self, event):
         self.tennis_events.append(event)

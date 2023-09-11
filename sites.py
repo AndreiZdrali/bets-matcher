@@ -3,18 +3,18 @@ import datetime
 class SiteNames:
     PUREBET = "Purebet"
     BETFAIR = "Betfair"
-    BETFAIRLIVE = "Betfair Live"
+    BETFAIRLIVE = "BetfairLIVE"
     SUPERBET = "Superbet"
     EFBET = "Efbet"
-    CASAPARIURILOR = "Casa Pariurilor"
+    CASAPARIURILOR = "CasaPariurilor"
     STANLEYBET = "Stanleybet"
-    MRBIT = "Mr Bit"
-    UNIBET = "Unibet"
-    PLAYONLINE = "Play Online"
-    PLAYONLINELIVE = "Play Online Live"
+    PLAYONLINE = "PlayOnline"
+    PLAYONLINELIVE = "PlayOnlineLIVE"
+    MAXBETLIVE = "MaxbetLIVE"
+    VULKANBET = "Vulkanbet"
+    VULKANBETLIVE = "VulkanbetLIVE"
 
 #EFBET, STANLEY, MRBIT mai intai intra pe site si dupa merge la categoria lui
-
 class SiteTennisURLs:
     PUREBET = "https://api.purebet.io/pbapi?sport=tennis"
     BETFAIR = "https://www.betfair.ro/exchange/plus/ro/tenis-pariuri-2"
@@ -23,11 +23,12 @@ class SiteTennisURLs:
     EFBET = "https://www.efbet.ro"
     CASAPARIURILOR = "https://www.casapariurilor.ro/pariuri-online/tenis"
     STANLEYBET = "https://www.stanleybet.ro/pariuri-sportive"
-    MRBIT = "https://mrbit.ro/en/betting"
     PLAYONLINE = "https://sportsbook-sm-distribution-api.nsoft.com/api/v1"
     PLAYONLINELIVE = "https://online.excelbet.ro/pariuri/live"
+    MAXBETLIVE = "https://www.maxbet.ro/ro/live"
+    VULKANBET = None
+    VULKANBETLIVE = "https://vulkan.bet/en/sports/tennis/live"
     
-
 class SiteFootballURLs:
     PUREBET = "https://api.purebet.io/pbapi?sport=soccer"
     BETFAIR = "https://www.betfair.ro/exchange/plus/ro/fotbal-pariuri-1"
@@ -37,6 +38,13 @@ class SiteFootballURLs:
     CASAPARIURILOR = "https://www.casapariurilor.ro/pariuri-online/fotbal"
     PLAYONLINE = "https://sportsbook-sm-distribution-api.nsoft.com/api/v1"
     PLAYONLINELIVE = "https://online.excelbet.ro/pariuri/live"
+    MAXBETLIVE = "https://www.maxbet.ro/ro/live"
+    VULKANBET = None
+    VULKANBETLIVE = "https://vulkan.bet/en/sports/football/live"
+
+class SiteType:
+    BOOKIE = "Bookie"
+    EXCHANGE = "Exchange"
 
 class Days:
     GET_TODAY = lambda: datetime.date.today()

@@ -8,12 +8,77 @@ from scrappers.efbet import Efbet
 from scrappers.casapariurilor import CasaPariurilor
 from scrappers.stanleybet import Stanleybet
 from scrappers.playonline import PlayOnline, PlayOnlineLive
-from sites import BetTypes, SiteNames
+from scrappers.vulkanbet import VulkanBet, VulkanBetLive
+from sites import BetTypes, SiteNames, SiteType
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
 import threading, settings, utils, time, os
 
 BG_RUNNING = False #DE SCAPAT
+
+#CHESTII CA SA ARATE RESTUL INGRIJIT
+class _Website:
+    def __init__(self, scrapper, sitename, sitetype, has_prematch, has_live, live_scrapper = None):
+        self.scrapper = scrapper
+        self.sitename = sitename
+        self.sitetype = sitetype
+        self.has_prematch = has_prematch
+        self.has_live = has_live
+        self.live_scrapper = live_scrapper
+
+def _get_bookie_list():
+    bookies = []
+    bookies.append(_Website(Superbet, SiteNames.SUPERBET, SiteType.BOOKIE, True, False))
+    bookies.append(_Website(Efbet, SiteNames.EFBET, SiteType.BOOKIE, True, False))
+    bookies.append(_Website(CasaPariurilor, SiteNames.CASAPARIURILOR, SiteType.BOOKIE, True, False))
+    bookies.append(_Website(Stanleybet, SiteNames.STANLEYBET, SiteType.BOOKIE, False, False))
+    bookies.append(_Website(PlayOnline, SiteNames.PLAYONLINE, SiteType.BOOKIE, True, True, PlayOnlineLive))
+    bookies.append(_Website(VulkanBet, SiteNames.VULKANBET, SiteType.BOOKIE, False, True, VulkanBetLive))
+    return bookies
+
+def _get_exchange_list():
+    exchanges = []
+    exchanges.append(_Website(Purebet, SiteNames.PUREBET, SiteType.EXCHANGE, True, False))
+    exchanges.append(_Website(Betfair, SiteNames.BETFAIR, SiteType.EXCHANGE, True, True, BetfairLive))
+    return exchanges
+#GATA
+
+BOOKIE_LIST = _get_bookie_list()
+EXCHANGE_LIST = _get_exchange_list()
+
+def get_scrappers(live):
+    bookie_text, exchange_text = settings.SETTINGS["bookie"], settings.SETTINGS["exchange"]
+    
+    bookie = list(filter(lambda x: x.sitename.strip().lower() == bookie_text.strip().lower(), BOOKIE_LIST))
+    if len(bookie) == 0:
+        print(f"Invalid '{bookie_text}' bookie. Use 'set bookie [bookie]' to select the bookie. Use 'help' to see all available bookies.")
+        return None
+    
+    exchange = list(filter(lambda x: x.sitename.strip().lower() == exchange_text.strip().lower(), EXCHANGE_LIST))
+    if len(exchange) == 0:
+        print(f"Invalid '{exchange_text}' bookie. Use 'set exchange [exchange]' to select the bookie. Use 'help' to see all available exchanges.")
+        return None
+    
+    bookie, exchange = bookie[0], exchange[0]
+    
+    if settings.SETTINGS["day"] == -1:
+        if not bookie.has_live:
+            print(f"Bookie '{bookie.sitename}' does not support live.")
+            return None
+        bookie = bookie.live_scrapper
+        if not exchange.has_live:
+            print(f"Exchange '{exchange.sitename}' does not support live.")
+            return None
+        exchange = exchange.live_scrapper
+    else:
+        if not bookie.has_prematch:
+            print(f"Bookie '{bookie.sitename}' does not support prematch.")
+            return None
+        if not exchange.has_prematch:
+            print(f"Exchange '{exchange.sitename}' does not support prematch.")
+            return None
+    
+    return (bookie.scrapper, exchange.scrapper)
 
 def get_site_events(result_dict, driver, site: ScrapperBase, sitename, sports, day):
     scrapper = site(driver)
@@ -37,14 +102,22 @@ def print_event(e):
         print(e.short_str())
         print("============================")
 
-def handle_help_command():
-    print("help")
-    print("run")
-    print("bgrun")
-    print("settings")
-    print("set")
-    print("exit")
-    print("jlkfsadjflksajflksadjfsa")
+def handle_help_command(args=None):
+    if args == "commands":
+        print("exit")
+        print("run")
+        print("bgrun")
+        print("settings")
+        print("bookie")
+        print("exchange")
+        print("set")
+        print("exit")
+        print("jlkfsadjflksajflksadjfsa")
+    elif args == "sites":
+        print(f"Available bookies: {', '.join([x.sitename for x in BOOKIE_LIST])}")
+        print(f"Available exchanges: {', '.join([x.sitename for x in EXCHANGE_LIST])}")
+    else:
+        print("Use 'help [commands/sites]' for more information.")
 
 def handle_home_command(driver_bookie, driver_exchange):
     driver_bookie.get("https://www.google.com")
@@ -72,14 +145,11 @@ def handle_settings_command():
         print(f"  '{key}': " + (f"'{val}'" if type(val) == str else f"{val}" ) + ",")
     print("}")
 
-def handle_run_command(driver_bookie, driver_exchange, sport_type, day):
+def handle_run_command(driver_bookie, driver_exchange, bookie, exchange, sport_type, day):
     result_dict = {} #ca sa iau val din thread-uri
-    scrapper_bookie, sitename_bookie = PlayOnlineLive, SiteNames.PLAYONLINELIVE
-    scrapper_exchange, sitename_exchange = BetfairLive, SiteNames.BETFAIRLIVE
-
-    if day != -1:
-        scrapper_bookie, sitename_bookie = PlayOnline, SiteNames.PLAYONLINE
-        scrapper_exchange, sitename_exchange = Betfair, SiteNames.BETFAIR
+    #sitename e doar ca sa caute in dictionar, nu are defapt legatura cu numele
+    scrapper_bookie, sitename_bookie = bookie, SiteType.BOOKIE
+    scrapper_exchange, sitename_exchange = exchange, SiteType.EXCHANGE
 
     thread_bookie = threading.Thread(target=get_site_events, args=[result_dict, driver_bookie, scrapper_bookie, sitename_bookie, sport_type, day])
     thread_exchange = threading.Thread(target=get_site_events, args=[result_dict, driver_exchange, scrapper_exchange, sitename_exchange, sport_type, day])
@@ -153,11 +223,11 @@ def bgrun_thread():
 def main():
     settings.load_settings() #incarca in SETTINGS din settings.py
 
-    betfairlivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
-    playonlinelivedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
+    bookiedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
+    exchangedriver = webdriver.Chrome(service=settings.SELENIUM_SERVICE, options=settings.SELENIUM_OPTIONS)
 
-    betfairlivedriver.minimize_window()
-    playonlinelivedriver.minimize_window()
+    bookiedriver.minimize_window()
+    exchangedriver.minimize_window()
 
     threads = []
 
@@ -167,11 +237,15 @@ def main():
         if user_input == "exit":
             break
 
-        elif user_input == "help":
-            handle_help_command()
+        elif user_input.split()[0] == "help":
+            _, *args = user_input.split()
+            if len(args) > 1:
+                print("Invalid 'help' format.")
+                continue
+            handle_help_command(args[0] if args else None)
 
         elif user_input == "home":
-            handle_home_command(betfairlivedriver, playonlinelivedriver)
+            handle_home_command(bookiedriver, exchangedriver)
 
         elif user_input == "cls" or  user_input == "clear":
             handle_clear_command()
@@ -191,7 +265,12 @@ def main():
                 print(f"No sports selected. Use 'set sport [f/t/ft]' to select the sports.")
                 continue
 
-            matcher = handle_run_command(playonlinelivedriver, betfairlivedriver, settings.SETTINGS["sport"], settings.SETTINGS["day"])
+            scrappers = get_scrappers(settings.SETTINGS["day"])
+            if not scrappers:
+                continue
+            bookie, exchange = scrappers[0], scrappers[1]
+            
+            matcher = handle_run_command(bookiedriver, exchangedriver, bookie, exchange, settings.SETTINGS["sport"], settings.SETTINGS["day"])
             for e in matcher.all_pairs:
                 if utils.check_event_odds_bounds(e, settings.SETTINGS["min_odds"], settings.SETTINGS["max_odds"]):
                     print_event(e)
@@ -200,7 +279,7 @@ def main():
                 handle_clear_command()
 
             if settings.SETTINGS["autohome"]:
-                handle_home_command(betfairlivedriver, playonlinelivedriver)
+                handle_home_command(bookiedriver, exchangedriver)
             
         elif user_input.split()[0] == "bgrun":
             print("Inca nu e gata, calmeaza-te")
@@ -213,7 +292,7 @@ def main():
                 handle_bgrun_command(args[0], threads)
             
         else:
-            print(f"Invalid {user_input.split()[0]} command. Use 'help' to see all commands.")
+            print(f"Invalid '{user_input.split()[0]}' command. Use 'help' to see all commands.")
 
     exit(0)
 

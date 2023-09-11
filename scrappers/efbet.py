@@ -12,6 +12,7 @@ import time
 class Efbet(ScrapperBase):
     def __init__(self, driver):
         super().__init__(driver)
+        self.sitename = SiteNames.EFBET
 
     def _load_all_events_beta(self):
         # WebDriverWait(self.driver, 20).until(EC.none_of(
