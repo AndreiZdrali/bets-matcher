@@ -10,6 +10,7 @@ class SiteNames:
     STANLEYBET = "Stanleybet"
     PLAYONLINE = "PlayOnline"
     PLAYONLINELIVE = "PlayOnlineLIVE"
+    MAXBET = "Maxbet"
     MAXBETLIVE = "MaxbetLIVE"
     VULKANBET = "Vulkanbet"
     VULKANBETLIVE = "VulkanbetLIVE"
@@ -25,7 +26,8 @@ class SiteTennisURLs:
     STANLEYBET = "https://www.stanleybet.ro/pariuri-sportive"
     PLAYONLINE = "https://sportsbook-sm-distribution-api.nsoft.com/api/v1"
     PLAYONLINELIVE = "https://online.excelbet.ro/pariuri/live"
-    MAXBETLIVE = "https://www.maxbet.ro/ro/live"
+    MAXBET = None
+    MAXBETLIVE = "https://sports-live-web.7platform.net/?companyName=maxbetromania&linkId=4e55cf71-a74c-4018-9489-51acf11252fe"
     VULKANBET = None
     VULKANBETLIVE = "https://vulkan.bet/en/sports/tennis/live"
     
@@ -38,7 +40,8 @@ class SiteFootballURLs:
     CASAPARIURILOR = "https://www.casapariurilor.ro/pariuri-online/fotbal"
     PLAYONLINE = "https://sportsbook-sm-distribution-api.nsoft.com/api/v1"
     PLAYONLINELIVE = "https://online.excelbet.ro/pariuri/live"
-    MAXBETLIVE = "https://www.maxbet.ro/ro/live"
+    MAXBET = None
+    MAXBETLIVE = "https://sports-live-web.7platform.net/?companyName=maxbetromania&linkId=4e55cf71-a74c-4018-9489-51acf11252fe"
     VULKANBET = None
     VULKANBETLIVE = "https://vulkan.bet/en/sports/football/live"
 

@@ -9,6 +9,7 @@ from scrappers.casapariurilor import CasaPariurilor
 from scrappers.stanleybet import Stanleybet
 from scrappers.playonline import PlayOnline, PlayOnlineLive
 from scrappers.vulkanbet import VulkanBet, VulkanBetLive
+from scrappers.maxbet import Maxbet, MaxbetLive
 from sites import BetTypes, SiteNames, SiteType
 from matcher import Matcher
 from exchange_matcher import ExchangeMatcher
@@ -34,6 +35,7 @@ def _get_bookie_list():
     bookies.append(_Website(Stanleybet, SiteNames.STANLEYBET, SiteType.BOOKIE, False, False))
     bookies.append(_Website(PlayOnline, SiteNames.PLAYONLINE, SiteType.BOOKIE, True, True, PlayOnlineLive))
     bookies.append(_Website(VulkanBet, SiteNames.VULKANBET, SiteType.BOOKIE, False, True, VulkanBetLive))
+    bookies.append(_Website(Maxbet, SiteNames.MAXBET, SiteType.BOOKIE, False, True, MaxbetLive))
     return bookies
 
 def _get_exchange_list():

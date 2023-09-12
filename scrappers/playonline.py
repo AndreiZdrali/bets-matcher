@@ -15,12 +15,6 @@ class PlayOnline(ScrapperBase):
         super().__init__(driver)
         self.sitename = SiteNames.PLAYONLINE
 
-    def _load_all_events(self):
-        WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "odds-container")))
-        for _ in range(100):
-            self.driver.execute_script("window.scrollBy(0, 200)")
-            time.sleep(0.05)
-
     #https://sportsbook-sm-distribution-api.nsoft.com/api/v1/events?filter[from]=2023-08-09T00:00:00&filter[to]=2023-08-09T23:59:59&filter[sportId]=18&timezone=Europe%2FBucharest&language=%7B%22default%22:%22ro%22,%22events%22:%22ro%22,%22category%22:%22ro%22,%22sport%22:%22ro%22,%22tournament%22:%22ro%22,%22market%22:%22ro%22,%22marketGroup%22:%22ro%22%7D&dataFormat=%7B%22default%22:%22object%22,%22events%22:%22array%22,%22markets%22:%22array%22,%22outcomes%22:%22array%22%7D&companyUuid=04301c5a-6b6c-4694-aaf5-f81bf665498c&deliveryPlatformId=3&shortProps=1
     def get_all_tennis_events(self, days=0):
         day_to_scan = datetime.now() + timedelta(days=days)
@@ -98,6 +92,12 @@ class PlayOnlineLive(PlayOnline):
         super().__init__(driver)
         self.sitename = SiteNames.PLAYONLINELIVE
 
+    def _load_all_events(self):
+        WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "odds-container")))
+        for _ in range(100):
+            self.driver.execute_script("window.scrollBy(0, 200)")
+            time.sleep(0.05)
+
     def get_all_tennis_events(self):
         self.driver.get(SiteFootballURLs.PLAYONLINELIVE)
         self._load_all_events()
@@ -108,7 +108,7 @@ class PlayOnlineLive(PlayOnline):
         table = None
         for t in tables:
             table_title = t.find("div", {"class": "table-title"}).text
-            if table_title == "Tenis":
+            if table_title.strip() == "Tenis":
                 table = t
                 break
 
@@ -123,7 +123,7 @@ class PlayOnlineLive(PlayOnline):
                 [nume1, nume2] = nume.text.split(" - ")
                 [cota1, cota2] = [float(x.text.strip()) for x in cote]
                 
-                event = TennisEvent(SiteNames.PLAYONLINELIVE, nume1, nume2, cota1, cota2)
+                event = TennisEvent(self.sitename, nume1, nume2, cota1, cota2)
 
                 self.add_if_not_included_tennis(event)
             #da ValueError daca sunt pariurile blocate
@@ -140,7 +140,7 @@ class PlayOnlineLive(PlayOnline):
         table = None
         for t in tables:
             table_title = t.find("div", {"class": "table-title"}).text
-            if table_title == "Fotbal":
+            if table_title.strip() == "Fotbal":
                 table = t
                 break
 
@@ -155,7 +155,7 @@ class PlayOnlineLive(PlayOnline):
                 [nume1, nume2] = nume.text.split(" - ")
                 [cota1, cotax, cota2] = [float(x.text.strip()) for x in cote]
                 
-                event = FootballEvent(SiteNames.PLAYONLINELIVE, nume1, nume2, cota1, cotax, cota2)
+                event = FootballEvent(self.sitename, nume1, nume2, cota1, cotax, cota2)
 
                 self.add_if_not_included_football(event)
             #da ValueError daca sunt pariurile blocate
