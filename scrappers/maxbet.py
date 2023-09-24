@@ -24,14 +24,14 @@ class MaxbetLive(Maxbet):
     def _load_page_tennis(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "icon-sport-5")))
         self.driver.find_element(By.CLASS_NAME, "icon-sport-5").click()
-        WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "match-bet-outcome-value")))
-        time.sleep(1)
+        self.driver.maximize_window()
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "match-bet-outcome-value")))
 
     def _load_page_football(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "icon-sport-1")))
         self.driver.find_element(By.CLASS_NAME, "icon-sport-1").click()
-        WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "match-bet-outcome-value")))
-        time.sleep(1)
+        self.driver.maximize_window()
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "match-bet-outcome-value")))
 
     def get_all_tennis_events(self):
         self.driver.get(SiteTennisURLs.MAXBETLIVE)
@@ -41,6 +41,7 @@ class MaxbetLive(Maxbet):
 
         #CSS selector pentru div-ul scrollable
         container_selector = "#app > div > div > div.header-body-content-wrapper > div.body-content > div.content > div > div > div.__panel"
+        container_height = self.driver.execute_script(f"return document.querySelector(\"{container_selector}\").clientHeight") - 30
 
         current_scroll = 0
         while current_scroll < self.driver.execute_script(f"return document.querySelector(\"{container_selector}\").scrollHeight"):
@@ -59,9 +60,11 @@ class MaxbetLive(Maxbet):
                     self.add_if_not_included_tennis(event)
                 except:
                     continue
-            self.driver.execute_script(f"document.querySelector(\"{container_selector}\").scrollTop += 400")
-            current_scroll += 400
-            time.sleep(0.5)
+            self.driver.execute_script(f"document.querySelector(\"{container_selector}\").scrollTop += {container_height}")
+            current_scroll += container_height
+            time.sleep(0.12)
+        
+        self.driver.minimize_window()
 
     def get_all_football_events(self):
         self.driver.get(SiteFootballURLs.MAXBETLIVE)
@@ -71,6 +74,7 @@ class MaxbetLive(Maxbet):
 
         #CSS selector pentru div-ul scrollable
         container_selector = "#app > div > div > div.header-body-content-wrapper > div.body-content > div.content > div > div > div.__panel"
+        container_height = self.driver.execute_script(f"return document.querySelector(\"{container_selector}\").clientHeight") - 30
 
         current_scroll = 0
         while current_scroll < self.driver.execute_script(f"return document.querySelector(\"{container_selector}\").scrollHeight"):
@@ -89,6 +93,8 @@ class MaxbetLive(Maxbet):
                     self.add_if_not_included_football(event)
                 except:
                     continue
-            self.driver.execute_script(f"document.querySelector(\"{container_selector}\").scrollTop += 400")
-            current_scroll += 400
-            time.sleep(0.5)
+            self.driver.execute_script(f"document.querySelector(\"{container_selector}\").scrollTop += {container_height}")
+            current_scroll += container_height
+            time.sleep(0.12)
+
+        self.driver.minimize_window()

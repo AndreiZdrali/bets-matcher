@@ -16,7 +16,7 @@ class Betfair(ScrapperBase):
 
     def _load_all_events(self):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "mod-event-line")))
-        time.sleep(1.2) #era 2
+        time.sleep(1) #era 2
 
     def _is_live_tennis(self, event_html):
         #e live cu verde si scor
@@ -65,8 +65,9 @@ class Betfair(ScrapperBase):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
 
-        time.sleep(0.2)
-        self.driver.refresh() #ca sa fie cotele actualizate
+        if page == 1:
+            time.sleep(0.3)
+            self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
 
@@ -147,8 +148,9 @@ class BetfairLive(Betfair):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
 
-        time.sleep(0.2)
-        self.driver.refresh() #ca sa fie cotele actualizate
+        if page == 1:
+            time.sleep(0.3)
+            self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
 
@@ -182,8 +184,9 @@ class BetfairLive(Betfair):
         self.driver.execute_script("localStorage.setItem(\"coupon.group-by\", \"time\")")
         self.driver.execute_script("localStorage.setItem(\"marketRefreshRate\", 1)")
         
-        time.sleep(0.2)
-        self.driver.refresh() #ca sa fie cotele actualizate
+        if page == 1:
+            time.sleep(0.3)
+            self.driver.refresh() #ca sa fie cotele actualizate
 
         self._load_all_events()
 

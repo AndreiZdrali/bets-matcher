@@ -270,7 +270,7 @@ def main():
 
             scrappers = get_scrappers(settings.SETTINGS["day"])
             if not scrappers:
-                continue
+                continue #get_scrappers da si print la problema, aici continue si atat
             bookie, exchange = scrappers[0], scrappers[1]
             
             matcher = handle_run_command(bookiedriver, exchangedriver, bookie, exchange, settings.SETTINGS["sport"], settings.SETTINGS["day"])
